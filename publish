@@ -1,0 +1,27 @@
+#!/bin/bash
+git add .
+MESSAGE="$(git status --porcelain \
+    | grep '^[MARCDT]' \
+    | sort \
+    | sed -r 's/^([[:upper:]])[[:upper:]]?[[:space:]]+/\1:\n/' \
+    | awk '!x[$0]++' \
+    | sed -re 's/^M:$/Modified: /' \
+    | sed -re 's/^A:$/Added: /' \
+    | sed -re 's/^R:$/Renamed: /' \
+    | sed -re 's/^C:$/Copied: /' \
+    | sed -re 's/^D:$/Deleted: /' \
+    | sed -re 's/^T:$/File Type Changed: /' \
+    | tr '\n' ' ' | xargs)"
+if [ "$MESSAGE" = "" ]; then
+    MESSAGE="$(git log -1 --pretty=%B | tr '\n' ' ' | sed 's/ *$//')"
+fi
+echo $MESSAGE
+commit=""
+echo '> Commit with this message? [Yn]: '
+read commit
+if [[ -z "$commit" || "$commit" = y || "$commit" = Y ]]; then
+    git commit -m "$MESSAGE"
+    git push
+else
+    exit 
+fi

@@ -1,0 +1,19 @@
+version: '3.5'
+
+services:
+  gitea:
+    image: 'gitea/gitea'
+    restart: always
+    networks:
+      caddy-lan:
+      proxy-lan:
+    volumes:
+      - ${APPDATA}/gitea:/data
+
+networks:
+  caddy-lan:
+    external:
+      name: caddy-lan
+  proxy-lan:
+    external:
+      name: proxy-lan
